@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="es" style="color-scheme:light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>⚽ Torneo de Fútbol</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f0f2f0;color:#1a1a1a;font-size:14px;color-scheme:light}
+input,select,textarea{color-scheme:light}
+
+/* ── Fondo general: patrón de césped sutil ── */
+body::before{content:'';position:fixed;inset:0;z-index:-1;
+  background-image:repeating-linear-gradient(
+    90deg,
+    rgba(26,107,60,0.04) 0px, rgba(26,107,60,0.04) 40px,
+    rgba(26,107,60,0.08) 40px, rgba(26,107,60,0.08) 80px
+  );
+  pointer-events:none;
+}
+
+/* ── Hero / Banner del estadio ── */
+.stadium-hero{
+  position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#0a1628 0%,#0d2040 40%,#1a3a20 70%,#1A6B3C 100%);
+  padding:0;
+}
+.stadium-svg{width:100%;display:block;max-height:200px}
+.hero-content{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;
+  background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,.1) 100%);
+}
+.hero-title{font-size:26px;font-weight:800;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.7);letter-spacing:1px;text-align:center}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.8);text-shadow:0 1px 4px rgba(0,0,0,.6);text-align:center}
+.hero-fecha{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px}
+
+/* ── Franja bandera PY debajo del hero ── */
+.flag-stripe{height:6px;background:linear-gradient(90deg,#D52B1E 0%,#D52B1E 33.3%,#fff 33.3%,#fff 66.6%,#0038A8 66.6%,#0038A8 100%)}
+
+/* ── Nav ── */
+nav{display:flex;background:#ffffff;border-bottom:3px solid #1A6B3C;overflow-x:auto;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.nav-btn{padding:12px 18px;border:none;background:none;cursor:pointer;font-size:13px;color:#555;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-3px;display:flex;align-items:center;gap:6px;font-weight:500}
+.nav-btn.active{color:#1A6B3C;border-bottom-color:#D52B1E;font-weight:700;background:linear-gradient(180deg,#f8fff9 0%,#fff 100%)}
+.nav-btn:hover:not(.active){background:#f9fff9;color:#1A6B3C}
+.view{display:none;padding:20px;max-width:1100px;margin:0 auto;background:transparent}
+.view.active{display:block}
+.btn{padding:8px 16px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px;transition:all .15s;color:#1a1a1a}
+.btn:hover{background:#f0f0f0}
+.btn.primary{background:#1A6B3C;color:#fff;border-color:#1A6B3C}
+.btn.primary:hover{background:#2E8B57}
+.btn.danger{background:#D52B1E;color:#fff;border-color:#D52B1E}
+.btn.sm{padding:8px 12px;font-size:12px}
+.card{background:#ffffff;border-radius:12px;border:1px solid #e0e8e0;padding:16px;margin-bottom:16px;box-shadow:0 1px 4px rgba(26,107,60,.06);color:#1a1a1a}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.metric{background:#fff;border-radius:12px;border:1px solid #e0e8e0;padding:16px;text-align:center;box-shadow:0 1px 4px rgba(26,107,60,.06);border-top:3px solid #1A6B3C}
+.metric-label{font-size:11px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.metric-val{font-size:22px;font-weight:700}
+.metric-val.verde{color:#1A6B3C}
+.metric-val.rojo{color:#D52B1E}
+.metric-val.naranja{color:#E65100}
+.metric-val.azul{color:#0038A8}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 12px;font-size:11px;color:#1A6B3C;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #e0f0e8;font-weight:700}
+td{padding:10px 12px;border-bottom:1px solid #f0f5f0;vertical-align:middle}
+tr:hover td{background:#f5fbf5}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.b-ing{background:#D6EFE1;color:#1A6B3C}
+.b-gas{background:#FFE0B2;color:#E65100}
+.b-ef{background:#E3F2FD;color:#0038A8}
+.b-tar{background:#F3E5F5;color:#4A148C}
+.b-qr{background:#E8F5E9;color:#1B5E20}
+.b-trf{background:#FFF3E0;color:#E65100}
+.b-pend{background:#FFF9C4;color:#F57F17}
+.b-pag{background:#D6EFE1;color:#1A6B3C}
+.progress{height:7px;background:#eee;border-radius:4px;overflow:hidden;margin-top:5px}
+.progress-fill{height:100%;border-radius:4px;transition:width .4s}
+.p-verde{background:#1A6B3C}
+.p-naranja{background:#FF6F00}
+.p-rojo{background:#D52B1E}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:24px;width:520px;max-width:95vw;max-height:92vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal h2{font-size:16px;font-weight:600;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.modal h2 button{background:none;border:none;font-size:20px;cursor:pointer;color:#888;line-height:1}
+label{display:block;font-size:12px;color:#666;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;background:#ffffff;color:#1a1a1a;font-family:inherit;-webkit-appearance:auto;appearance:auto}
+input:focus,select:focus{outline:none;border-color:#1A6B3C;background:#ffffff;color:#1a1a1a}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tipo-sel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.tipo-card{padding:12px;border-radius:8px;border:2px solid #e0e0e0;cursor:pointer;text-align:center;font-size:13px;font-weight:600;transition:all .15s}
+.tipo-card.ing-sel{background:#D6EFE1;border-color:#1A6B3C;color:#1A6B3C}
+.tipo-card.gas-sel{background:#FFE0B2;border-color:#FF6F00;color:#E65100}
+.forma-sel{display:flex;gap:8px}
+.forma-btn{flex:1;padding:9px;border-radius:8px;border:1.5px solid #e0e0e0;cursor:pointer;text-align:center;font-size:12px;font-weight:600;transition:all .15s}
+.forma-btn.sel{background:#E3F2FD;border-color:#0038A8;color:#0038A8}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #f0f0f0}
+input[type="text"].num-input{text-align:right}
+
+.empty-state{text-align:center;padding:40px;color:#aaa}
+.empty-state svg{margin-bottom:12px;opacity:.4}
+.row-actions{display:flex;gap:6px;opacity:1}
+.desktop-hover .row-actions{opacity:0}
+.desktop-hover tr:hover .row-actions{opacity:1}
+.search-bar{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.search-bar input,.search-bar select{width:auto;flex:1;min-width:120px}
+.alert-info{background:#E3F2FD;color:#0038A8;border:1px solid #90CAF9;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:16px}
+.alert-warn{background:#FFF9C4;color:#F57F17;border:1px solid #FFE082;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:16px}
+.ec-item{display:grid;grid-template-columns:1fr 110px 110px 110px 120px 80px;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid #f5f5f5;font-size:13px}
+.ec-item:last-child{border-bottom:none}
+.ec-item.header{background:#f8faf8;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;border-radius:8px 8px 0 0;border-bottom:2px solid #e8e8e8}
+.ec-item span:not(:first-child){text-align:right}
+.export-bar{display:flex;gap:10px;margin-bottom:16px;justify-content:flex-end}
+
+/* ── MOBILE ── */
+@media(max-width:600px){
+  /* Layout general */
+  .view{padding:12px}
+  .card{padding:12px;border-radius:10px;margin-bottom:12px}
+
+  /* Hero más compacto */
+  .stadium-svg{max-height:120px}
+  .hero-title{font-size:18px}
+  .hero-sub{font-size:11px}
+
+  /* Nav: solo íconos */
+  nav .nav-btn span{display:none}
+  nav .nav-btn{padding:14px 12px;font-size:16px}
+
+  /* Formularios */
+  .form-row{grid-template-columns:1fr}
+  select,input{font-size:16px!important;padding:10px 12px} /* evita zoom en iOS */
+
+  /* Botones más grandes para el dedo */
+  .btn{padding:10px 16px;font-size:13px}
+  .btn.sm{padding:8px 12px;font-size:12px}
+  .modal-actions{flex-direction:column-reverse}
+  .modal-actions .btn{width:100%;justify-content:center;padding:13px}
+
+  /* Forma de pago: 2x2 en lugar de fila */
+  .forma-sel{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .forma-btn{padding:12px 8px}
+
+  /* Tipo ingreso/gasto */
+  .tipo-sel{gap:8px}
+  .tipo-card{padding:14px 8px}
+
+  /* Métricas: 2 columnas */
+  .metrics{grid-template-columns:1fr 1fr;gap:8px}
+  .metric{padding:12px 8px}
+  .metric-val{font-size:17px}
+  .metric-label{font-size:10px}
+
+  /* Tablas — convertir a tarjetas en móvil */
+  .mob-table table,
+  .mob-table thead,
+  .mob-table tbody,
+  .mob-table th,
+  .mob-table td,
+  .mob-table tr{display:block;width:100%}
+  .mob-table thead{display:none}
+  .mob-table tr{background:#ffffff!important;border-radius:10px;border:1px solid #e0e8e0;margin-bottom:10px;padding:10px 12px;position:relative;color:#1a1a1a!important}
+  .mob-table td{padding:3px 0;font-size:13px;border:none;color:#1a1a1a}
+  .mob-table td:before{content:attr(data-label);font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:2px}
+  .mob-table .row-actions{margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0;justify-content:flex-end}
+
+  /* Search bar en móvil */
+  .search-bar{flex-direction:column;gap:8px}
+  .search-bar select,.search-bar input{width:100%;min-width:unset}
+  .search-bar .btn{width:100%;justify-content:center;padding:12px}
+
+  /* Estado de cuenta */
+  .ec-item{grid-template-columns:1fr 1fr;gap:6px;font-size:12px;padding:10px}
+  .ec-item span:nth-child(3),.ec-item span:nth-child(4),.ec-item span:nth-child(5){display:none}
+
+  /* Modal más cómodo */
+  .modal{padding:16px;border-radius:16px 16px 0 0;position:fixed;bottom:0;left:0;right:0;max-height:92vh;width:100%!important;max-width:100%!important}
+  .overlay{align-items:flex-end}
+
+  /* Resumen grids */
+  #v-resumen .card > div[style*="grid-template-columns:1fr 1fr"]{
+    display:block!important;
+  }
+
+  /* Botones acción siempre visibles en móvil — ya son visibles por defecto */
+
+  /* Export buttons */
+  #btns-export-estado{flex-wrap:wrap}
+  #btns-export-estado .btn{flex:1;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO ESTADIO -->
+<div class="stadium-hero">
+  <svg class="stadium-svg" viewBox="0 0 1200 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <!-- Cielo nocturno -->
+    <rect width="1200" height="200" fill="#0a1628"/>
+    <!-- Estrellas -->
+    <circle cx="80" cy="20" r="1.2" fill="#fff" opacity=".7"/>
+    <circle cx="200" cy="35" r="1" fill="#fff" opacity=".5"/>
+    <circle cx="350" cy="15" r="1.4" fill="#fff" opacity=".8"/>
+    <circle cx="500" cy="28" r="1" fill="#fff" opacity=".6"/>
+    <circle cx="680" cy="12" r="1.3" fill="#fff" opacity=".7"/>
+    <circle cx="820" cy="30" r="1" fill="#fff" opacity=".5"/>
+    <circle cx="950" cy="18" r="1.2" fill="#fff" opacity=".8"/>
+    <circle cx="1100" cy="25" r="1" fill="#fff" opacity=".6"/>
+    <circle cx="150" cy="55" r=".8" fill="#fff" opacity=".4"/>
+    <circle cx="440" cy="48" r=".9" fill="#fff" opacity=".5"/>
+    <circle cx="750" cy="42" r=".8" fill="#fff" opacity=".4"/>
+    <circle cx="1050" cy="50" r=".9" fill="#fff" opacity=".5"/>
+    <!-- Luna -->
+    <circle cx="1100" cy="40" r="18" fill="#fffde7" opacity=".85"/>
+    <circle cx="1110" cy="34" r="14" fill="#0a1628"/>
+    <!-- Tribunas izquierda -->
+    <path d="M0,200 L0,120 Q50,95 120,90 L200,85 L240,200Z" fill="#1a2840"/>
+    <path d="M0,120 Q50,95 120,90 L200,85" stroke="#2a3850" stroke-width="1.5" fill="none"/>
+    <!-- Asientos tribuna izq -->
+    <rect x="10" y="100" width="4" height="3" rx="1" fill="#D52B1E" opacity=".7"/>
+    <rect x="18" y="97" width="4" height="3" rx="1" fill="#fff" opacity=".5"/>
+    <rect x="26" y="95" width="4" height="3" rx="1" fill="#D52B1E" opacity=".7"/>
+    <rect x="34" y="93" width="4" height="3" rx="1" fill="#0038A8" opacity=".7"/>
+    <rect x="42" y="91" width="4" height="3" rx="1" fill="#fff" opacity=".5"/>
+    <rect x="50" y="90" width="4" height="3" rx="1" fill="#D52B1E" opacity=".7"/>
+    <rect x="58" y="89" width="4" height="3" rx="1" fill="#fff" opacity=".5"/>
+    <rect x="10" y="106" width="4" height="3" rx="1" fill="#0038A8" opacity=".6"/>
+    <rect x="18" y="103" width="4" height="3" rx="1" fill="#D52B1E" opacity=".6"/>
+    <rect x="26" y="101" width="4" height="3" rx="1" fill="#fff" opacity=".4"/>
+    <rect x="34" y="99" width="4" height="3" rx="1" fill="#D52B1E" opacity=".6"/>
+    <rect x="42" y="97" width="4" height="3" rx="1" fill="#0038A8" opacity=".6"/>
+    <!-- Tribunas derecha -->
+    <path d="M1200,200 L1200,120 Q1150,95 1080,90 L1000,85 L960,200Z" fill="#1a2840"/>
+    <path d="M1200,120 Q1150,95 1080,90 L1000,85" stroke="#2a3850" stroke-width="1.5" fill="none"/>
+    <!-- Asientos tribuna der -->
+    <rect x="1140" y="100" width="4" height="3" rx="1" fill="#fff" opacity=".5"/>
+    <rect x="1132" y="97" width="4" height="3" rx="1" fill="#D52B1E" opacity=".7"/>
+    <rect x="1124" y="95" width="4" height="3" rx="1" fill="#0038A8" opacity=".7"/>
+    <rect x="1116" y="93" width="4" height="3" rx="1" fill="#fff" opacity=".5"/>
+    <rect x="1108" y="91" width="4" height="3" rx="1" fill="#D52B1E" opacity=".7"/>
+    <rect x="1100" y="90" width="4" height="3" rx="1" fill="#fff" opacity=".5"/>
+    <rect x="1140" y="106" width="4" height="3" rx="1" fill="#D52B1E" opacity=".6"/>
+    <rect x="1132" y="103" width="4" height="3" rx="1" fill="#0038A8" opacity=".6"/>
+    <rect x="1124" y="101" width="4" height="3" rx="1" fill="#D52B1E" opacity=".6"/>
+    <!-- Floodlights / Reflectores -->
+    <rect x="210" y="70" width="6" height="40" fill="#2a3850"/>
+    <rect x="200" y="65" width="26" height="8" rx="2" fill="#3a4860"/>
+    <ellipse cx="213" cy="65" rx="20" ry="6" fill="rgba(255,255,200,.15)"/>
+    <!-- haz de luz izq -->
+    <path d="M213,71 L320,200 L260,200Z" fill="rgba(255,255,200,.04)"/>
+    <rect x="984" y="70" width="6" height="40" fill="#2a3850"/>
+    <rect x="974" y="65" width="26" height="8" rx="2" fill="#3a4860"/>
+    <ellipse cx="987" cy="65" rx="20" ry="6" fill="rgba(255,255,200,.15)"/>
+    <!-- haz de luz der -->
+    <path d="M987,71 L880,200 L940,200Z" fill="rgba(255,255,200,.04)"/>
+    <!-- Cancha (césped iluminado) -->
+    <rect x="250" y="130" width="700" height="70" rx="4" fill="#1a5c28"/>
+    <!-- Franjas de césped -->
+    <rect x="250" y="130" width="58" height="70" fill="#1d6830" opacity=".8"/>
+    <rect x="366" y="130" width="58" height="70" fill="#1d6830" opacity=".8"/>
+    <rect x="482" y="130" width="58" height="70" fill="#1d6830" opacity=".8"/>
+    <rect x="598" y="130" width="58" height="70" fill="#1d6830" opacity=".8"/>
+    <rect x="714" y="130" width="58" height="70" fill="#1d6830" opacity=".8"/>
+    <rect x="830" y="130" width="58" height="70" fill="#1d6830" opacity=".8"/>
+    <!-- Líneas de la cancha -->
+    <rect x="250" y="130" width="700" height="70" rx="4" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/>
+    <!-- Línea del medio -->
+    <line x1="600" y1="130" x2="600" y2="200" stroke="#fff" stroke-width="1.2" opacity=".6"/>
+    <!-- Círculo central -->
+    <ellipse cx="600" cy="168" rx="28" ry="14" fill="none" stroke="#fff" stroke-width="1.2" opacity=".6"/>
+    <circle cx="600" cy="168" r="2" fill="#fff" opacity=".7"/>
+    <!-- Área izquierda -->
+    <rect x="250" y="147" width="55" height="36" fill="none" stroke="#fff" stroke-width="1" opacity=".5"/>
+    <rect x="250" y="153" width="28" height="24" fill="none" stroke="#fff" stroke-width="1" opacity=".4"/>
+    <!-- Área derecha -->
+    <rect x="895" y="147" width="55" height="36" fill="none" stroke="#fff" stroke-width="1" opacity=".5"/>
+    <rect x="922" y="153" width="28" height="24" fill="none" stroke="#fff" stroke-width="1" opacity=".4"/>
+    <!-- Arco izquierdo -->
+    <rect x="238" y="155" width="12" height="20" fill="none" stroke="#fff" stroke-width="1.5" opacity=".7"/>
+    <!-- Arco derecho -->
+    <rect x="950" y="155" width="12" height="20" fill="none" stroke="#fff" stroke-width="1.5" opacity=".7"/>
+    <!-- Pelota -->
+    <circle cx="600" cy="168" r="5" fill="#fff" opacity=".9"/>
+    <path d="M597,164 L600,163 L603,164 L604,168 L602,171 L598,171 L596,168Z" fill="#333" opacity=".5"/>
+    <!-- Glow sobre la cancha -->
+    <rect x="250" y="125" width="700" height="15" fill="url(#glow)" opacity=".3"/>
+    <defs>
+      <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#fffde7" stop-opacity="1"/>
+        <stop offset="100%" stop-color="#fffde7" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <div class="hero-content">
+    <div class="hero-title">⚽ TORNEO DE FÚTBOL 🇵🇾</div>
+    <div class="hero-sub">Sistema de gestión — Ingresos · Gastos · Estado de equipos</div>
+    <div class="hero-fecha" id="header-fecha"></div>
+  </div>
+</div>
+<div class="flag-stripe"></div>
+
+<nav>
+  <button class="nav-btn active" onclick="showView('movimientos')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    <span>Movimientos</span>
+  </button>
+  <button class="nav-btn" onclick="showView('cuotas')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <span>Cuotas</span>
+  </button>
+  <button class="nav-btn" onclick="showView('estado')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Estado equipo</span>
+  </button>
+  <button class="nav-btn" onclick="showView('equipos')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span>Equipos</span>
+  </button>
+  <button class="nav-btn" onclick="showView('config')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span>Configuración</span>
+  </button>
+  <button class="nav-btn" onclick="showView('resumen')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span>Resumen</span>
+  </button>
+</nav>
+
+<!-- MOVIMIENTOS -->
+<div id="v-movimientos" class="view active">
+  <div class="search-bar">
+    <select id="f-tipo" onchange="renderMov()"><option value="">Todos los tipos</option><option value="INGRESO">Ingresos</option><option value="GASTO">Gastos</option></select>
+    <select id="f-equipo-mov" onchange="renderMov()"><option value="">Todos los equipos</option></select>
+    <select id="f-item-mov" onchange="renderMov()"><option value="">Todos los ítems</option></select>
+    <button class="btn primary" onclick="openMovModal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nuevo movimiento
+    </button>
+  </div>
+  <div class="card mob-table" style="padding:0;overflow:hidden">
+    <table>
+      <thead><tr><th>Fecha</th><th>Tipo</th><th>Equipo / Proveedor</th><th>Ítem</th><th>Jugador</th><th>Forma</th><th style="text-align:right">Importe (Gs.)</th><th></th></tr></thead>
+      <tbody id="tbody-mov"></tbody>
+    </table>
+    <div id="mov-empty" class="empty-state" style="display:none">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <p>Sin movimientos. Agregá el primero.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CUOTAS -->
+<div id="v-cuotas" class="view">
+  <div class="alert-info">Definí acá qué debe pagar cada equipo y por cuánto. El Estado de cuenta descuenta automáticamente los pagos registrados en Movimientos.</div>
+  <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+    <button class="btn primary" onclick="openCuotaModal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Agregar cuota
+    </button>
+  </div>
+  <div class="card mob-table" style="padding:0;overflow:hidden">
+    <table>
+      <thead><tr><th>Equipo</th><th>Ítem</th><th style="text-align:right">Monto esperado (Gs.)</th><th></th></tr></thead>
+      <tbody id="tbody-cuotas"></tbody>
+    </table>
+    <div id="cuotas-empty" class="empty-state" style="display:none">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <p>Sin cuotas definidas.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ESTADO EQUIPO -->
+<div id="v-estado" class="view">
+  <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap">
+    <label style="margin:0;color:#666;font-size:13px">Seleccionar equipo:</label>
+    <select id="sel-ec" onchange="renderEstado()" style="width:240px">
+      <option value="">-- Elegir equipo --</option>
+    </select>
+    <div style="margin-left:auto;display:flex;gap:8px" id="btns-export-estado" style="display:none">
+      <button class="btn" onclick="exportarJPG('ec-print','estado_equipo')" title="Descargar JPG">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        JPG
+      </button>
+      <button class="btn primary" onclick="exportarPDF('ec-print','estado_equipo')" title="Descargar PDF">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        PDF
+      </button>
+    </div>
+  </div>
+  <div id="ec-print">
+    <div id="ec-content"></div>
+  </div>
+</div>
+
+<!-- EQUIPOS -->
+<div id="v-equipos" class="view">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+    <button class="btn primary" onclick="openEquipoModal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Agregar equipo
+    </button>
+  </div>
+  <div class="card mob-table" style="padding:0;overflow:hidden">
+    <table>
+      <thead><tr><th>#</th><th>Nombre del equipo</th><th>Delegado</th><th>Teléfono</th><th>Categoría</th><th>Jugadores</th><th></th></tr></thead>
+      <tbody id="tbody-equipos"></tbody>
+    </table>
+    <div id="equipos-empty" class="empty-state" style="display:none">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <p>Sin equipos registrados.</p>
+    </div>
+  </div>
+</div>
+
+<!-- RESUMEN -->
+<div id="v-resumen" class="view">
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:16px">
+    <button class="btn" onclick="exportarJPG('res-print','resumen_general')" title="Descargar JPG">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      JPG
+    </button>
+    <button class="btn primary" onclick="exportarPDF('res-print','resumen_general')" title="Descargar PDF">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      PDF
+    </button>
+  </div>
+  <div id="res-print">
+    <div style="background:#1A6B3C;color:#fff;padding:16px 24px;border-radius:10px 10px 0 0;display:flex;align-items:center;gap:14px;margin-bottom:0">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+      <div>
+        <div style="font-size:20px;font-weight:800;letter-spacing:1px">TORNEO LIGA DEL REY 🇵🇾</div>
+        <div style="font-size:12px;opacity:.8">Resumen general · Generado el <span id="res-fecha-hdr"></span></div>
+      </div>
+    </div>
+    <div style="height:6px;background:linear-gradient(90deg,#D52B1E 0%,#D52B1E 33.3%,#fff 33.3%,#fff 66.6%,#0038A8 66.6%,#0038A8 100%);margin-bottom:16px"></div>
+    <div class="metrics" id="metrics-global"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="card">
+        <div class="section-title">Ingresos por ítem</div>
+        <table><tbody id="tbody-res-ing"></tbody></table>
+      </div>
+      <div class="card">
+        <div class="section-title">Gastos por ítem</div>
+        <table><tbody id="tbody-res-gas"></tbody></table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Seguimiento por equipo</div>
+      <table>
+        <thead><tr><th>Equipo</th><th style="text-align:right">Deuda total</th><th style="text-align:right">Cobrado</th><th style="text-align:right">Pendiente</th><th>Avance</th></tr></thead>
+        <tbody id="tbody-res-eq"></tbody>
+      </table>
+    </div>
+
+    <!-- Líneas de totales finales -->
+    <div class="card" style="border:2px solid #1A6B3C">
+      <div class="section-title" style="margin-top:0">Resumen de caja y banco</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+        <!-- Fila 1: Ingresos por forma -->
+        <div style="padding:10px 14px;border-bottom:1px solid #f0f0f0;border-right:1px solid #f0f0f0">
+          <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">💵 Total ingresos efectivo</div>
+          <div id="res-tot-ef" style="font-size:18px;font-weight:800;color:#0038A8">Gs. 0</div>
+        </div>
+        <div style="padding:10px 14px;border-bottom:1px solid #f0f0f0">
+          <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">🏦 Total ingresos transferencia</div>
+          <div id="res-tot-trf" style="font-size:18px;font-weight:800;color:#E65100">Gs. 0</div>
+        </div>
+        <!-- Fila 2: Saldos -->
+        <div style="padding:10px 14px;border-right:1px solid #f0f0f0;background:#E3F2FD;border-radius:0 0 0 8px">
+          <div style="font-size:11px;color:#0038A8;text-transform:uppercase;letter-spacing:.4px;font-weight:700;margin-bottom:4px">💵 Saldo en caja (efectivo)</div>
+          <div id="res-saldo-ef" style="font-size:20px;font-weight:800;color:#0038A8">Gs. 0</div>
+          <div style="font-size:10px;color:#888;margin-top:2px">Ingresos ef. − Gastos ef.</div>
+        </div>
+        <div style="padding:10px 14px;background:#FFF3E0;border-radius:0 0 8px 0">
+          <div style="font-size:11px;color:#E65100;text-transform:uppercase;letter-spacing:.4px;font-weight:700;margin-bottom:4px">🏦 Saldo en banco (transf.)</div>
+          <div id="res-saldo-trf" style="font-size:20px;font-weight:800;color:#E65100">Gs. 0</div>
+          <div style="font-size:10px;color:#888;margin-top:2px">Ingresos transf. − Gastos transf.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- CONFIGURACIÓN -->
+<div id="v-config" class="view">
+  <div class="alert-info">Editá nombres y valores de cada ítem. Podés agregar nuevos o eliminar los que no uses. Al seleccionar un ítem en Movimientos, el importe se autocompleta con su valor configurado.</div>
+
+  <!-- INGRESOS -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div>
+        <div class="section-title" style="margin:0">Ítems de ingreso</div>
+        <div style="font-size:12px;color:#888;margin-top:2px">Nombre editable · valor en Gs. · eliminar</div>
+      </div>
+      <button class="btn primary" onclick="agregarItemIng()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Agregar ítem
+      </button>
+    </div>
+    <div id="cfg-list-ing"></div>
+  </div>
+
+  <!-- GASTOS -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div>
+        <div class="section-title" style="margin:0">Ítems de gasto</div>
+        <div style="font-size:12px;color:#888;margin-top:2px">Nombre editable · valor en Gs. · eliminar</div>
+      </div>
+      <button class="btn primary" onclick="agregarItemGas()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Agregar ítem
+      </button>
+    </div>
+    <div id="cfg-list-gas"></div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;gap:10px">
+    <button class="btn" onclick="renderConfig()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.49"/></svg>
+      Descartar cambios
+    </button>
+    <button class="btn primary" onclick="guardarConfig()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Guardar todo
+    </button>
+  </div>
+</div>
+
+<!-- MODAL MOVIMIENTO -->
+<div class="overlay" id="ov-mov" onclick="if(event.target===this)closeMovModal()">
+  <div class="modal">
+    <h2>Nuevo movimiento <button onclick="closeMovModal()">×</button></h2>
+    <div class="tipo-sel">
+      <div class="tipo-card ing-sel" id="tc-ing" onclick="setTipo('INGRESO')">↓ Ingreso</div>
+      <div class="tipo-card" id="tc-gas" onclick="setTipo('GASTO')">↑ Gasto</div>
+    </div>
+    <div class="form-row">
+      <div><label>Fecha</label><input type="date" id="m-fecha"></div>
+      <div><label id="m-entidad-lbl">Equipo</label><select id="m-entidad" onchange="actualizarJugadorWrap()"></select></div>
+    </div>
+    <div class="form-row">
+      <div><label>Ítem</label><select id="m-item" onchange="onItemChange()"></select></div>
+      <div>
+        <label>Total (Gs.) <span id="m-importe-hint" style="color:#F9A825;font-size:11px;font-weight:600"></span></label>
+        <input type="text" id="m-importe" placeholder="0" readonly
+          style="background:#f0f5f0;font-weight:700;font-size:15px;color:#1A6B3C;cursor:default">
+      </div>
+    </div>
+    <!-- Jugador (solo visible para tarjetas) -->
+    <div id="m-jugador-wrap" style="display:none">
+      <div style="background:#FFF9C4;border:1px solid #FFE082;border-radius:8px;padding:10px 12px;margin-top:8px">
+        <div style="font-size:11px;font-weight:700;color:#F57F17;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">🟨🟥 Identificar jugador sancionado</div>
+        <div class="form-row">
+          <div><label>Jugador</label><select id="m-jugador"></select></div>
+          <div><label>N° Camiseta</label><input type="text" id="m-camiseta" placeholder="Ej: 10" style="background:#fff"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Formas de pago mixto -->
+    <div id="m-forma-wrap">
+      <div style="background:#f0f5f0;border-radius:10px;padding:12px;margin-top:8px">
+        <div style="font-size:11px;font-weight:700;color:#1A6B3C;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">💰 Distribución del pago (dejar en 0 lo que no aplica)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <label style="display:flex;align-items:center;gap:6px;color:#0038A8">
+              <span style="font-size:16px">💵</span> Efectivo (Gs.)
+            </label>
+            <input type="text" id="m-ef" placeholder="0" oninput="recalcTotal(this)" value="0"
+              style="font-weight:700;color:#0038A8;border-color:#90CAF9">
+          </div>
+          <div>
+            <label style="display:flex;align-items:center;gap:6px;color:#E65100">
+              <span style="font-size:16px">🏦</span> Transferencia (Gs.)
+            </label>
+            <input type="text" id="m-trf" placeholder="0" oninput="recalcTotal(this)" value="0"
+              style="font-weight:700;color:#E65100;border-color:#FFCC80">
+          </div>
+          <div>
+            <label style="display:flex;align-items:center;gap:6px;color:#4A148C">
+              <span style="font-size:16px">💳</span> Tarjeta (Gs.)
+            </label>
+            <input type="text" id="m-tar" placeholder="0" oninput="recalcTotal(this)" value="0"
+              style="font-weight:700;color:#4A148C;border-color:#CE93D8">
+          </div>
+          <div>
+            <label style="display:flex;align-items:center;gap:6px;color:#1B5E20">
+              <span style="font-size:16px">📱</span> QR (Gs.)
+            </label>
+            <input type="text" id="m-qr" placeholder="0" oninput="recalcTotal(this)" value="0"
+              style="font-weight:700;color:#1B5E20;border-color:#A5D6A7">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Gastos: forma de pago simplificada -->
+    <div id="m-forma-gasto-wrap" style="display:none">
+      <label>Importe del gasto (Gs.)</label>
+      <input type="text" id="m-importe-gasto" placeholder="0" oninput="formatearGasto(this)"
+        style="font-weight:700;font-size:15px;color:#D52B1E;margin-bottom:10px">
+      <label>Forma de pago</label>
+      <div class="forma-sel">
+        <div class="forma-btn sel" id="fg-ef" onclick="setFormaGasto('EFECTIVO')">💵 Efectivo</div>
+        <div class="forma-btn" id="fg-trf" onclick="setFormaGasto('TRANSFERENCIA')">🏦 Transferencia</div>
+        <div class="forma-btn" id="fg-tar" onclick="setFormaGasto('TARJETA')">💳 Tarjeta</div>
+        <div class="forma-btn" id="fg-qr" onclick="setFormaGasto('QR')">📱 QR</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div><label>Comprobante #</label><input type="text" id="m-comp" placeholder="Opcional"></div>
+      <div><label>Observaciones</label><input type="text" id="m-obs" placeholder="Opcional"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeMovModal()">Cancelar</button>
+      <button class="btn primary" onclick="guardarMov()">Guardar movimiento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CUOTA -->
+<div class="overlay" id="ov-cuota" onclick="if(event.target===this)closeCuotaModal()">
+  <div class="modal" style="width:400px">
+    <h2>Agregar cuota <button onclick="closeCuotaModal()">×</button></h2>
+    <label>Equipo</label><select id="c-eq"></select>
+    <label>Ítem</label><select id="c-it"></select>
+    <label>Monto esperado (Gs.)</label><input type="number" id="c-monto" placeholder="0" min="0" step="1000">
+    <div class="modal-actions">
+      <button class="btn" onclick="closeCuotaModal()">Cancelar</button>
+      <button class="btn primary" onclick="guardarCuota()">Guardar cuota</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EQUIPO -->
+<div class="overlay" id="ov-equipo" onclick="if(event.target===this)closeEquipoModal()">
+  <div class="modal" style="width:520px">
+    <h2>Agregar equipo <button onclick="closeEquipoModal()">×</button></h2>
+    <label>Nombre del equipo</label><input type="text" id="eq-nombre" placeholder="Ej: Equipo Alfa">
+    <div class="form-row">
+      <div><label>Delegado</label><input type="text" id="eq-delegado" placeholder="Nombre"></div>
+      <div><label>Teléfono</label><input type="tel" id="eq-tel" placeholder="0981 000000"></div>
+    </div>
+    <label>Categoría</label><input type="text" id="eq-cat" placeholder="Ej: Sub-20, Libre...">
+
+    <!-- Logo del equipo -->
+    <div style="margin-top:12px">
+      <label style="margin-bottom:6px">Logo del equipo (opcional)</label>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div id="eq-logo-preview" style="width:60px;height:60px;border:2px dashed #c8e6c9;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f9fff9;overflow:hidden;flex-shrink:0">
+          <span style="font-size:24px">🛡️</span>
+        </div>
+        <div style="flex:1">
+          <input type="file" id="eq-logo-file" accept="image/*" onchange="previewLogo(this)" style="font-size:12px;padding:6px">
+          <div style="font-size:11px;color:#aaa;margin-top:4px">PNG, JPG o SVG. Recomendado 200×200px.</div>
+          <button class="btn sm" onclick="quitarLogo()" style="margin-top:6px;font-size:11px">× Quitar logo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de jugadores -->
+    <div style="margin-top:14px;border-top:1px solid #f0f0f0;padding-top:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <div style="font-weight:600;font-size:13px;color:#1A6B3C">Lista de buena fe</div>
+          <div style="font-size:11px;color:#888">Jugadores habilitados del equipo</div>
+        </div>
+        <button class="btn" style="font-size:12px" onclick="abrirJugadoresDesdeEquipo()">👥 Editar jugadores</button>
+      </div>
+      <div id="eq-jugadores-preview" style="font-size:12px;color:#888;padding:4px 0">Sin jugadores cargados aún.</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeEquipoModal()">Cancelar</button>
+      <button class="btn primary" onclick="guardarEquipo()">Guardar equipo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL JUGADORES (acceso rápido) -->
+<div class="overlay" id="ov-jugadores" onclick="if(event.target===this)closeJugadoresModal()">
+  <div class="modal" style="width:460px">
+    <h2>👥 Lista de buena fe — <span id="jmod-equipo-nombre"></span> <button onclick="closeJugadoresModal()">×</button></h2>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:12px;color:#888">Editá nombre y camiseta directamente. Presioná Enter para agregar uno nuevo.</div>
+      <button class="btn" style="font-size:12px;flex-shrink:0" onclick="agregarFilaJugador()">+ Agregar</button>
+    </div>
+    <div style="max-height:340px;overflow-y:auto">
+      <table style="font-size:12px">
+        <thead><tr><th style="width:55px">N° Cam.</th><th>Nombre del jugador</th><th style="width:36px"></th></tr></thead>
+        <tbody id="eq-jugadores-tbody"></tbody>
+      </table>
+    </div>
+    <div id="eq-jugadores-empty" style="text-align:center;color:#aaa;font-size:12px;padding:16px">Sin jugadores. Hacé clic en "+ Agregar".</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeJugadoresModal()">Cancelar</button>
+      <button class="btn primary" onclick="guardarJugadores()">Guardar jugadores</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function load(k,def){try{return JSON.parse(localStorage.getItem(k))||def}catch{return def}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+
+let equipos     = load("tf_equipos",[]);
+let movimientos = load("tf_movimientos",[]);
+let cuotas      = load("tf_cuotas",[]);
+let nextId      = load("tf_nextId",1);
+
+function nid(){const id=nextId++;save("tf_nextId",nextId);return id}
+function gs(n){return Number(n).toLocaleString("es-PY")}
+function hoy(){return new Date().toISOString().split("T")[0]}
+function fmt(f){if(!f)return "-";const[y,m,d]=f.split("-");return`${d}/${m}/${y}`}
+function pct(a,b){return b>0?Math.min(100,Math.round(a/b*100)):0}
+
+// ── Separador de miles ────────────────────────────────────────
+function formatNum(n){
+  if(!n && n!==0) return "";
+  return Math.round(n).toLocaleString("es-PY");
+}
+function parseNum(str){
+  if(!str) return 0;
+  return parseFloat(String(str).replace(/\./g,"").replace(/,/g,"."))||0;
+}
+function recalcTotal(inp){
+  // formatear mientras escribe
+  const raw = String(inp.value).replace(/[^\d]/g,"");
+  const num = parseInt(raw)||0;
+  inp.value = num ? num.toLocaleString("es-PY") : "";
+  // recalcular total
+  const ef  = parseNum(document.getElementById("m-ef")?.value)||0;
+  const trf = parseNum(document.getElementById("m-trf")?.value)||0;
+  const tar = parseNum(document.getElementById("m-tar")?.value)||0;
+  const qr  = parseNum(document.getElementById("m-qr")?.value)||0;
+  const total = ef+trf+tar+qr;
+  const imp = document.getElementById("m-importe");
+  if(imp) imp.value = total ? total.toLocaleString("es-PY") : "0";
+}
+
+let curFormaGasto = "EFECTIVO";
+function setFormaGasto(f){
+  curFormaGasto = f;
+  ["ef","trf","tar","qr"].forEach(k=>{
+    const el = document.getElementById("fg-"+k);
+    if(el) el.classList.toggle("sel",{ef:"EFECTIVO",trf:"TRANSFERENCIA",tar:"TARJETA",qr:"QR"}[k]===f);
+  });
+}
+
+function resetFormaFields(){
+  ["m-ef","m-trf","m-tar","m-qr"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = "0";
+  });
+  const imp = document.getElementById("m-importe");
+  if(imp) imp.value = "0";
+}
+let editingMovId   = null;
+let editingCuotaId = null;
+let editingEquipoId = null;
+
+function showView(v){
+  document.querySelectorAll(".view").forEach(el=>el.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(el=>el.classList.remove("active"));
+  document.getElementById("v-"+v).classList.add("active");
+  const idx={movimientos:0,cuotas:1,estado:2,equipos:3,config:4,resumen:5}[v];
+  const navBtns = document.querySelectorAll(".nav-btn");
+  if(idx!==undefined && navBtns[idx]) navBtns[idx].classList.add("active");
+  const fn={movimientos:renderMov,cuotas:renderCuotas,estado:renderEstado,equipos:renderEquipos,resumen:renderResumen,config:renderConfig};
+  fn[v]&&fn[v]();
+}
+
+function poblarSelects(){
+  const eqList = equipos.map(e=>e.nombre);
+  // filtros movimientos
+  const selFEq = document.getElementById("f-equipo-mov");
+  const cur1 = selFEq.value;
+  selFEq.innerHTML = '<option value="">Todos los equipos</option>';
+  eqList.forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent=n;selFEq.appendChild(o)});
+  selFEq.value = cur1;
+  // filtro ítem movimientos
+  const selFIt = document.getElementById("f-item-mov");
+  const cur2 = selFIt.value;
+  selFIt.innerHTML = '<option value="">Todos los ítems</option>';
+  [...getItemsIng(),...getItemsGas()].forEach(it=>{const o=document.createElement("option");o.value=it;o.textContent=it;selFIt.appendChild(o)});
+  selFIt.value = cur2;
+  // estado equipo
+  const selEC = document.getElementById("sel-ec");
+  const cur3 = selEC.value;
+  selEC.innerHTML = '<option value="">-- Elegir equipo --</option>';
+  eqList.forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent=n;selEC.appendChild(o)});
+  selEC.value = cur3;
+}
+
+// ── RENDER MOVIMIENTOS ───────────────────────────────────────
+function renderMov(){
+  poblarSelects();
+  const ft = document.getElementById("f-tipo").value;
+  const fe = document.getElementById("f-equipo-mov").value;
+  const fi = document.getElementById("f-item-mov").value;
+  let data = movimientos.filter(m=>
+    (!ft||m.tipo===ft)&&
+    (!fe||m.entidad===fe)&&
+    (!fi||m.item===fi)
+  ).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const tbody = document.getElementById("tbody-mov");
+  const empty = document.getElementById("mov-empty");
+  if(!tbody||!empty) return;
+  tbody.innerHTML = "";
+  empty.style.display = data.length?"none":"block";
+  data.forEach(m=>{
+    const ing = m.tipo==="INGRESO";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td data-label="Fecha">${fmt(m.fecha)}</td>
+      <td data-label="Tipo"><span class="badge ${ing?"b-ing":"b-gas"}">${ing?"Ingreso":"Gasto"}</span></td>
+      <td data-label="Equipo / Proveedor">${m.entidad||"-"}</td>
+      <td data-label="Ítem" style="font-size:12px">${m.item}</td>
+      <td data-label="Jugador" style="font-size:12px">${m.jugador?`<span style="font-weight:600;color:#1A6B3C">${m.jugador}</span>${m.camiseta?` <span style="background:#e8f5e9;color:#1A6B3C;border-radius:4px;padding:1px 5px;font-size:11px">#${m.camiseta}</span>`:""}`:"-"}</td>
+      <td data-label="Forma">${(()=>{
+        const f = m.formas||{};
+        if(m.tipo==="INGRESO"){
+          const parts=[];
+          if(f.ef>0)  parts.push(`<span class="badge b-ef">💵 ${gs(f.ef)}</span>`);
+          if(f.trf>0) parts.push(`<span class="badge b-trf">🏦 ${gs(f.trf)}</span>`);
+          if(f.tar>0) parts.push(`<span class="badge b-tar">💳 ${gs(f.tar)}</span>`);
+          if(f.qr>0)  parts.push(`<span class="badge b-qr">📱 ${gs(f.qr)}</span>`);
+          if(parts.length) return parts.join(" ");
+        }
+        return m.forma?`<span class="badge b-${m.forma==="EFECTIVO"?"ef":m.forma==="TRANSFERENCIA"?"trf":m.forma==="TARJETA"?"tar":"qr"}">${m.forma}</span>`:"-";
+      })()}</td>
+      <td data-label="Importe" style="text-align:right;font-weight:700;color:${ing?"#1A6B3C":"#D52B1E"}">${ing?"+":"-"} ${gs(m.importe)}</td>
+      <td><div class="row-actions">
+        <button class="btn sm" onclick="editarMov(${m.id})">Editar</button>
+        <button class="btn sm danger" onclick="eliminarMov(${m.id})">Eliminar</button>
+      </div></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function eliminarMov(id){
+  if(!confirm("¿Eliminar este movimiento?"))return;
+  movimientos = movimientos.filter(m=>m.id!==id);
+  save("tf_movimientos",movimientos);
+  renderMov();
+}
+
+// ── RENDER CUOTAS ────────────────────────────────────────────
+function renderCuotas(){
+  poblarSelects();
+  const tbody = document.getElementById("tbody-cuotas");
+  const empty = document.getElementById("cuotas-empty");
+  if(!tbody||!empty) return;
+  tbody.innerHTML = "";
+  empty.style.display = cuotas.length?"none":"block";
+  const grouped = {};
+  cuotas.forEach(c=>{
+    if(!grouped[c.equipo])grouped[c.equipo]=[];
+    grouped[c.equipo].push(c);
+  });
+  Object.entries(grouped).forEach(([eq,list])=>{
+    list.forEach((c,i)=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td data-label="Equipo" style="font-weight:${i===0?"600":"400"};color:${i===0?"#1A6B3C":"#555"}">${i===0?eq:""}</td>
+        <td data-label="Ítem" style="font-size:12px">${c.item}</td>
+        <td data-label="Monto" style="text-align:right;font-weight:600">Gs. ${gs(c.monto)}</td>
+        <td><div class="row-actions">
+          <button class="btn sm" onclick="editarCuota(${c.id})">Editar</button>
+          <button class="btn sm danger" onclick="eliminarCuota(${c.id})">Eliminar</button>
+        </div></td>`;
+      tbody.appendChild(tr);
+    });
+  });
+  if(!cuotas.length) tbody.innerHTML="";
+}
+
+function eliminarCuota(id){
+  if(!confirm("¿Eliminar esta cuota?"))return;
+  cuotas = cuotas.filter(c=>c.id!==id);
+  save("tf_cuotas",cuotas);
+  renderCuotas();
+}
+
+// ── RENDER ESTADO EQUIPO ─────────────────────────────────────
+function renderEstado(){
+  poblarSelects();
+  const eq = document.getElementById("sel-ec").value;
+  const cont = document.getElementById("ec-content");
+  if(!cont) return;
+  if(!eq){cont.innerHTML='<div class="empty-state"><p>Seleccioná un equipo para ver su estado de cuenta.</p></div>';return}
+
+  const cuotasEq = cuotas.filter(c=>c.equipo===eq);
+  const pagosEq  = movimientos.filter(m=>m.tipo==="INGRESO"&&m.entidad===eq);
+  const deuda    = cuotasEq.reduce((s,c)=>s+c.monto,0);
+  const pagado   = pagosEq.reduce((s,m)=>s+m.importe,0);
+  const pendiente= Math.max(0,deuda-pagado);
+  const avance   = pct(pagado,deuda);
+  const colAvance= avance<50?"rojo":avance<100?"naranja":"verde";
+
+  const eq_obj = equipos.find(e=>e.nombre===eq);
+  const logoHtml = eq_obj&&eq_obj.logo
+    ? `<img src="${eq_obj.logo}" style="width:36px;height:36px;object-fit:contain;border-radius:8px;background:#fff;padding:2px">`
+    : `<span style="font-size:28px">🛡️</span>`;
+
+  let html = `<div class="metrics">
+    <div class="metric"><div class="metric-label">Deuda total</div><div class="metric-val rojo">Gs. ${gs(deuda)}</div></div>
+    <div class="metric"><div class="metric-label">Pagado</div><div class="metric-val verde">Gs. ${gs(pagado)}</div></div>
+    <div class="metric"><div class="metric-label">Pendiente</div><div class="metric-val naranja">Gs. ${gs(pendiente)}</div></div>
+    <div class="metric"><div class="metric-label">Avance</div><div class="metric-val ${colAvance}">${avance}%</div></div>
+  </div>`;
+
+  // ── Detalle de cuotas (ítems con monto esperado definido) ──
+  if(cuotasEq.length){
+    html += `<div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:14px 16px;font-size:12px;font-weight:600;color:#1A6B3C;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #f0f0f0">
+        📋 Cuotas obligatorias
+      </div>
+      <div class="ec-item header">
+        <span>Ítem</span><span>Esperado</span><span>Pagado</span><span>Saldo</span><span>Estado</span><span>%</span>
+      </div>`;
+    cuotasEq.forEach(c=>{
+      const pagItem = pagosEq.filter(m=>m.item===c.item).reduce((s,m)=>s+m.importe,0);
+      const salItem = Math.max(0,c.monto-pagItem);
+      const pItem   = pct(pagItem,c.monto);
+      const colP    = pItem<50?"p-rojo":pItem<100?"p-naranja":"p-verde";
+      html += `<div class="ec-item">
+        <span style="font-weight:600">${c.item}</span>
+        <span>Gs. ${gs(c.monto)}</span>
+        <span style="color:#1A6B3C;font-weight:600">Gs. ${gs(pagItem)}</span>
+        <span style="color:${salItem>0?"#D52B1E":"#1A6B3C"};font-weight:600">Gs. ${gs(salItem)}</span>
+        <span><span class="badge ${salItem===0?"b-pag":"b-pend"}">${salItem===0?"✔ Pagado":"Pendiente"}</span></span>
+        <span>
+          <div style="font-size:11px;text-align:right;margin-bottom:2px">${pItem}%</div>
+          <div class="progress"><div class="progress-fill ${colP}" style="width:${pItem}%"></div></div>
+        </span>
+      </div>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `<div class="alert-warn">Este equipo no tiene cuotas definidas. Agregalas en la sección <strong>Cuotas</strong>.</div>`;
+  }
+
+  // ── Todos los cobros registrados agrupados por ítem ──
+  if(pagosEq.length){
+    // agrupar por ítem
+    const porItem = {};
+    pagosEq.forEach(m=>{
+      if(!porItem[m.item]) porItem[m.item] = {total:0, movs:[]};
+      porItem[m.item].total += m.importe;
+      porItem[m.item].movs.push(m);
+    });
+
+    html += `<div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:14px 16px;font-size:12px;font-weight:600;color:#1A6B3C;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #f0f0f0">
+        💰 Cobros registrados por ítem
+      </div>`;
+
+    Object.entries(porItem).forEach(([item, data])=>{
+      const cuota = cuotasEq.find(c=>c.item===item);
+      const esperado = cuota ? cuota.monto : null;
+      html += `<div style="padding:10px 16px;border-bottom:1px solid #f5f5f5">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-weight:600;font-size:13px">${item}</span>
+          <span style="font-weight:700;color:#1A6B3C;font-size:14px">Gs. ${gs(data.total)}
+            ${esperado!==null?`<span style="font-size:11px;color:#888;font-weight:400"> / Gs. ${gs(esperado)}</span>`:""}
+          </span>
+        </div>`;
+      // detalle de cada pago
+      data.movs.sort((a,b)=>b.fecha.localeCompare(a.fecha)).forEach(m=>{
+        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:#f9fff9;border-radius:6px;margin-bottom:3px;font-size:12px">
+          <span style="color:#888">${fmt(m.fecha)}</span>
+          ${m.jugador?`<span style="color:#1A6B3C;font-weight:600">👤 ${m.jugador}${m.camiseta?` #${m.camiseta}`:""}</span>`:"<span></span>"}
+          <span>${m.forma?`<span class="badge b-${m.forma==="EFECTIVO"?"ef":m.forma==="TARJETA"?"tar":m.forma==="QR"?"qr":"trf"}">${m.forma}</span>`:""}</span>
+          <span style="font-weight:700;color:#1A6B3C">Gs. ${gs(m.importe)}</span>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
+
+    // ítems pagados sin cuota definida — aviso
+    const itemsSinCuota = Object.keys(porItem).filter(it=>!cuotasEq.find(c=>c.item===it));
+    if(itemsSinCuota.length){
+      html += `<div class="alert-info" style="font-size:12px">
+        ℹ️ Los ítems <strong>${itemsSinCuota.join(", ")}</strong> tienen cobros registrados pero no tienen cuota definida. El importe igualmente se contabiliza como pagado.
+      </div>`;
+    }
+  }
+
+  cont.innerHTML = html;
+  const btnBar = document.getElementById("btns-export-estado");
+  if(btnBar) btnBar.style.display = eq ? "flex" : "none";
+  const printWrap = document.getElementById("ec-print");
+  if(printWrap && eq){
+    const hdr = document.createElement("div");
+    hdr.id = "ec-print-header";
+    hdr.style.cssText = "background:#1A6B3C;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;margin-bottom:0;display:flex;align-items:center;gap:12px;";
+    hdr.innerHTML = `${logoHtml}
+      <div><div style="font-size:17px;font-weight:700">Estado de cuenta — ${eq}</div>
+      <div style="font-size:12px;opacity:.8">Generado el ${new Date().toLocaleDateString("es-PY",{day:"2-digit",month:"long",year:"numeric"})}</div></div>`;
+    const old = document.getElementById("ec-print-header");
+    if(old) old.remove();
+    printWrap.insertBefore(hdr, printWrap.firstChild);
+  }
+}
+
+// ── RENDER EQUIPOS ───────────────────────────────────────────
+function renderEquipos(){
+  const tbody = document.getElementById("tbody-equipos");
+  const empty = document.getElementById("equipos-empty");
+  if(!tbody||!empty) return;
+  tbody.innerHTML = "";
+  empty.style.display = equipos.length?"none":"block";
+  equipos.forEach((eq,i)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td data-label="#" style="color:#888;font-size:12px">${i+1}</td>
+      <td data-label="Equipo">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:8px;overflow:hidden;background:#f0f5f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #e0e8e0">
+            ${eq.logo ? `<img src="${eq.logo}" style="width:100%;height:100%;object-fit:contain">` : `<span style="font-size:18px">🛡️</span>`}
+          </div>
+          <span style="font-weight:600;color:#1A6B3C">${eq.nombre}</span>
+        </div>
+      </td>
+      <td data-label="Delegado">${eq.delegado||"-"}</td>
+      <td data-label="Teléfono">${eq.tel||"-"}</td>
+      <td data-label="Categoría">${eq.cat||"-"}</td>
+      <td data-label="Jugadores"><span style="background:#e8f5e9;color:#1A6B3C;border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600">${(eq.jugadores||[]).length} jug.</span></td>
+      <td><div class="row-actions">
+        <button class="btn sm" onclick="editarEquipo(${eq.id})">Editar equipo</button>
+        <button class="btn sm" style="background:#e8f5e9;border-color:#a5d6a7;color:#1A6B3C" onclick="editarJugadores(${eq.id})">👥 Jugadores</button>
+        <button class="btn sm danger" onclick="eliminarEquipo(${eq.id})">Eliminar</button>
+      </div></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function eliminarEquipo(id){
+  if(!confirm("¿Eliminar este equipo? También se eliminarán sus cuotas y movimientos."))return;
+  const eq = equipos.find(e=>e.id===id);
+  if(eq){
+    cuotas      = cuotas.filter(c=>c.equipo!==eq.nombre);
+    movimientos = movimientos.filter(m=>m.entidad!==eq.nombre);
+    save("tf_cuotas",cuotas);
+    save("tf_movimientos",movimientos);
+  }
+  equipos = equipos.filter(e=>e.id!==id);
+  save("tf_equipos",equipos);
+  renderEquipos();
+  poblarSelects();
+}
+
+// ── RENDER RESUMEN ───────────────────────────────────────────
+function renderResumen(){
+  const fechaEl = document.getElementById("res-fecha-hdr");
+  if(fechaEl) fechaEl.textContent = new Date().toLocaleDateString("es-PY",{day:"2-digit",month:"long",year:"numeric"});
+  const elMetrics = document.getElementById("metrics-global");
+  const elIng = document.getElementById("tbody-res-ing");
+  const elGas = document.getElementById("tbody-res-gas");
+  const elEq  = document.getElementById("tbody-res-eq");
+  if(!elMetrics||!elIng||!elGas||!elEq) return;
+  const ing = movimientos.filter(m=>m.tipo==="INGRESO").reduce((s,m)=>s+m.importe,0);
+  const gas = movimientos.filter(m=>m.tipo==="GASTO").reduce((s,m)=>s+m.importe,0);
+  const deudaTotal = cuotas.reduce((s,c)=>s+c.monto,0);
+  // Solo contar pagos que corresponden a ítems definidos como cuota de ese equipo
+  const pagadoSobreCuotas = movimientos.filter(m=>{
+    if(m.tipo!=="INGRESO") return false;
+    return cuotas.some(c=>c.equipo===m.entidad && c.item===m.item);
+  }).reduce((s,m)=>s+m.importe,0);
+  const porcobrar = Math.max(0, deudaTotal - pagadoSobreCuotas);
+
+  // Saldo en caja (efectivo) y banco (transferencia)
+  // Helper: obtener monto por forma de un movimiento (nuevo con formas{} o viejo con forma+importe)
+  function montoForma(m, forma){
+    if(m.formas){
+      const map={EFECTIVO:"ef",TRANSFERENCIA:"trf",TARJETA:"tar",QR:"qr"};
+      return m.formas[map[forma]]||0;
+    }
+    // movimiento viejo: todo el importe va a la forma registrada
+    return (m.forma||"EFECTIVO")===forma ? m.importe : 0;
+  }
+
+  const ingEf  = movimientos.filter(m=>m.tipo==="INGRESO").reduce((s,m)=>s+montoForma(m,"EFECTIVO"),0);
+  const ingTrf = movimientos.filter(m=>m.tipo==="INGRESO").reduce((s,m)=>s+montoForma(m,"TRANSFERENCIA"),0);
+  const gasEf  = movimientos.filter(m=>m.tipo==="GASTO").reduce((s,m)=>s+montoForma(m,"EFECTIVO"),0);
+  const gasTrf = movimientos.filter(m=>m.tipo==="GASTO").reduce((s,m)=>s+montoForma(m,"TRANSFERENCIA"),0);
+  const saldoEf  = ingEf  - gasEf;
+  const saldoTrf = ingTrf - gasTrf;
+
+  elMetrics.innerHTML = `
+    <div class="metric"><div class="metric-label">Total ingresos</div><div class="metric-val verde">Gs. ${gs(ing)}</div></div>
+    <div class="metric"><div class="metric-label">Total gastos</div><div class="metric-val rojo">Gs. ${gs(gas)}</div></div>
+    <div class="metric"><div class="metric-label">Resultado neto</div><div class="metric-val ${ing-gas>=0?"verde":"rojo"}">Gs. ${gs(ing-gas)}</div></div>
+    <div class="metric"><div class="metric-label">Por cobrar</div><div class="metric-val naranja">Gs. ${gs(porcobrar)}</div></div>`;
+
+  // Actualizar líneas finales de resumen
+  const elTotEf  = document.getElementById("res-tot-ef");
+  const elTotTrf = document.getElementById("res-tot-trf");
+  const elSaldoEf  = document.getElementById("res-saldo-ef");
+  const elSaldoTrf = document.getElementById("res-saldo-trf");
+  if(elTotEf)  elTotEf.textContent  = "Gs. " + gs(ingEf);
+  if(elTotTrf) elTotTrf.textContent = "Gs. " + gs(ingTrf);
+  if(elSaldoEf)  elSaldoEf.textContent  = "Gs. " + gs(saldoEf);
+  if(elSaldoTrf) elSaldoTrf.textContent = "Gs. " + gs(saldoTrf);
+
+  elIng.innerHTML = getItemsIng().map(it=>{
+    const tot = movimientos.filter(m=>m.tipo==="INGRESO"&&m.item===it).reduce((s,m)=>s+m.importe,0);
+    return`<tr><td style="font-size:12px">${it}</td><td style="text-align:right;color:#1A6B3C;font-weight:700">Gs. ${gs(tot)}</td></tr>`;
+  }).join("");
+
+  elGas.innerHTML = getItemsGas().map(it=>{
+    const tot = movimientos.filter(m=>m.tipo==="GASTO"&&m.item===it).reduce((s,m)=>s+m.importe,0);
+    return`<tr><td style="font-size:12px">${it}</td><td style="text-align:right;color:#D52B1E;font-weight:700">Gs. ${gs(tot)}</td></tr>`;
+  }).join("");
+
+  elEq.innerHTML = equipos.map(eq=>{
+    const deuda   = cuotas.filter(c=>c.equipo===eq.nombre).reduce((s,c)=>s+c.monto,0);
+    // Solo pagos que corresponden a ítems de cuota definidos para este equipo
+    const cobrado = movimientos.filter(m=>
+      m.tipo==="INGRESO" &&
+      m.entidad===eq.nombre &&
+      cuotas.some(c=>c.equipo===eq.nombre && c.item===m.item)
+    ).reduce((s,m)=>s+m.importe,0);
+    const pend    = Math.max(0,deuda-cobrado);
+    const av      = pct(cobrado,deuda);
+    const col     = av<50?"p-rojo":av<100?"p-naranja":"p-verde";
+    const logoR = eq.logo
+      ? `<img src="${eq.logo}" style="width:28px;height:28px;object-fit:contain;border-radius:6px;vertical-align:middle;margin-right:8px">`
+      : `<span style="font-size:18px;margin-right:6px">🛡️</span>`;
+    return`<tr>
+      <td style="font-weight:600">${logoR}${eq.nombre}</td>
+      <td style="text-align:right;color:#D52B1E;font-weight:600">Gs. ${gs(deuda)}</td>
+      <td style="text-align:right;color:#1A6B3C;font-weight:600">Gs. ${gs(cobrado)}</td>
+      <td style="text-align:right;color:${pend>0?"#D52B1E":"#1A6B3C"};font-weight:600">Gs. ${gs(pend)}</td>
+      <td style="width:140px">
+        <div style="font-size:11px;color:#888;margin-bottom:3px">${av}%</div>
+        <div class="progress"><div class="progress-fill ${col}" style="width:${av}%"></div></div>
+      </td></tr>`;
+  }).join("");
+
+  // ── Resumen por forma de pago ────────────────────────────────
+  const elFormas = document.getElementById("res-formas");
+  if(elFormas){
+    const formaMap = {EFECTIVO:"ef", TRANSFERENCIA:"trf", TARJETA:"tar", QR:"qr"};
+    const formas = ["EFECTIVO","TRANSFERENCIA","TARJETA","QR"];
+    const colores = {
+      EFECTIVO:    {bg:"#E3F2FD", color:"#0038A8", icon:"💵"},
+      TRANSFERENCIA:{bg:"#FFF3E0",color:"#E65100", icon:"🏦"},
+      TARJETA:     {bg:"#F3E5F5", color:"#4A148C", icon:"💳"},
+      QR:          {bg:"#E8F5E9", color:"#1B5E20", icon:"📱"}
+    };
+    const ingMov = movimientos.filter(m=>m.tipo==="INGRESO");
+    elFormas.innerHTML = formas.map(forma=>{
+      const total = ingMov.reduce((s,m)=>s+montoForma(m,forma),0);
+      if(total===0) return "";
+      const cfg = colores[forma];
+      return `<div style="background:${cfg.bg};border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:22px;margin-bottom:6px">${cfg.icon}</div>
+        <div style="font-size:11px;font-weight:600;color:${cfg.color};text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${forma}</div>
+        <div style="font-size:16px;font-weight:800;color:${cfg.color}">Gs. ${gs(total)}</div>
+      </div>`;
+    }).join("");
+  }
+}
+
+// ── MODAL MOVIMIENTO ─────────────────────────────────────────
+function openMovModal(){
+  editingMovId = null;
+  document.querySelector("#ov-mov h2").childNodes[0].textContent = "Nuevo movimiento ";
+  document.getElementById("ov-mov").querySelector(".btn.primary").textContent = "Guardar movimiento";
+  curTipo="INGRESO";
+  document.getElementById("m-fecha").value = hoy();
+  resetFormaFields();
+  document.getElementById("m-comp").value = "";
+  document.getElementById("m-obs").value = "";
+  document.getElementById("m-jugador-wrap").style.display = "none";
+  document.getElementById("m-camiseta").value = "";
+  setFormaGasto("EFECTIVO");
+  updateTipoUI();
+  onItemChange();
+  document.getElementById("ov-mov").classList.add("open");
+}
+
+function editarMov(id){
+  const m = movimientos.find(m=>m.id===id);
+  if(!m) return;
+  editingMovId = id;
+  document.querySelector("#ov-mov h2").childNodes[0].textContent = "Editar movimiento ";
+  document.getElementById("ov-mov").querySelector(".btn.primary").textContent = "Guardar cambios";
+  curTipo = m.tipo;
+  updateTipoUI();
+  document.getElementById("m-fecha").value = m.fecha;
+  document.getElementById("m-item").value = m.item;
+  actualizarEntidadField();
+  // restaurar entidad (puede ser select o input según el ítem)
+  const entidadEl = document.getElementById("m-entidad");
+  if(entidadEl.tagName==="SELECT"){
+    const exists = Array.from(entidadEl.options).some(o=>o.value===m.entidad);
+    if(!exists){const o=document.createElement("option");o.value=m.entidad;o.textContent=m.entidad;entidadEl.appendChild(o);}
+    entidadEl.value = m.entidad;
+  } else {
+    entidadEl.value = m.entidad;
+  }
+  // restaurar importes por forma
+  if(curTipo==="INGRESO"){
+    const f = m.formas||{};
+    document.getElementById("m-ef").value  = f.ef  ? f.ef.toLocaleString("es-PY")  : "0";
+    document.getElementById("m-trf").value = f.trf ? f.trf.toLocaleString("es-PY") : "0";
+    document.getElementById("m-tar").value = f.tar ? f.tar.toLocaleString("es-PY") : "0";
+    document.getElementById("m-qr").value  = f.qr  ? f.qr.toLocaleString("es-PY")  : "0";
+    document.getElementById("m-importe").value = m.importe ? m.importe.toLocaleString("es-PY") : "0";
+  } else {
+    const g = document.getElementById("m-importe-gasto");
+    if(g) g.value = m.importe ? m.importe.toLocaleString("es-PY") : "0";
+    setFormaGasto(m.forma||"EFECTIVO");
+  }
+  document.getElementById("m-comp").value = m.comp||"";
+  document.getElementById("m-obs").value = m.obs||"";
+  // NO llamar setForma (ya no existe) — la forma se restaura arriba por tipo
+  actualizarJugadorWrap();
+  if(m.jugador){
+    setTimeout(()=>{
+      const sel = document.getElementById("m-jugador");
+      sel.value = m.jugador;
+      document.getElementById("m-camiseta").value = m.camiseta||"";
+    },50);
+  }
+  document.getElementById("ov-mov").classList.add("open");
+}
+
+function closeMovModal(){document.getElementById("ov-mov").classList.remove("open")}
+
+function setTipo(t){curTipo=t;updateTipoUI()}
+function updateTipoUI(){
+  document.getElementById("tc-ing").className="tipo-card"+(curTipo==="INGRESO"?" ing-sel":"");
+  document.getElementById("tc-gas").className="tipo-card"+(curTipo==="GASTO"?" gas-sel":"");
+  document.getElementById("m-forma-wrap").style.display     = curTipo==="INGRESO"?"block":"none";
+  document.getElementById("m-forma-gasto-wrap").style.display = curTipo==="GASTO"?"block":"none";
+  const selIt=document.getElementById("m-item");
+  selIt.innerHTML="";
+  (curTipo==="INGRESO"?getItemsIng():getItemsGas()).forEach(it=>{const o=document.createElement("option");o.value=it;o.textContent=it;selIt.appendChild(o)});
+  selIt.onchange = onItemChange;
+  actualizarEntidadField();
+}
+
+function itemTieneCuotas(itemNombre){
+  // Verifica si algún equipo tiene ese ítem definido como cuota
+  return cuotas.some(c=>c.item===itemNombre);
+}
+
+function actualizarEntidadField(){
+  const item = document.getElementById("m-item").value;
+  const lbl  = document.getElementById("m-entidad-lbl");
+  const wrap = document.getElementById("m-entidad-wrap");
+  const sel  = document.getElementById("m-entidad");
+
+  if(curTipo==="GASTO"){
+    lbl.textContent = "Proveedor / pagado a";
+    // mantener como select con proveedores
+    if(sel.tagName==="INPUT") convertirEntidadASelect();
+    sel.innerHTML="";
+    ["Club Deportivo","Árbitro","Municipalidad","Otro"].forEach(p=>{
+      const o=document.createElement("option");o.value=p;o.textContent=p;sel.appendChild(o);
+    });
+    return;
+  }
+
+  // INGRESO: verificar si el ítem tiene cuotas asociadas a equipos
+  if(itemTieneCuotas(item)){
+    lbl.textContent = "Equipo";
+    if(sel.tagName==="INPUT") convertirEntidadASelect();
+    sel.innerHTML="";
+    equipos.forEach(eq=>{
+      const o=document.createElement("option");o.value=eq.nombre;o.textContent=eq.nombre;sel.appendChild(o);
+    });
+  } else {
+    lbl.textContent = "Recibido de";
+    if(sel.tagName==="SELECT") convertirEntidadAInput();
+    const inp = document.getElementById("m-entidad");
+    if(!inp.value) inp.value = "CLIENTES";
+  }
+}
+
+function convertirEntidadASelect(){
+  const old = document.getElementById("m-entidad");
+  const sel = document.createElement("select");
+  sel.id = "m-entidad";
+  sel.onchange = actualizarJugadorWrap;
+  sel.style.cssText = old.style.cssText;
+  old.parentNode.replaceChild(sel, old);
+}
+
+function convertirEntidadAInput(){
+  const old = document.getElementById("m-entidad");
+  if(old.tagName==="INPUT") return;
+  const inp = document.createElement("input");
+  inp.type = "text";
+  inp.id = "m-entidad";
+  inp.placeholder = "Ej: CLIENTES, Kiosco, etc.";
+  inp.style.cssText = old.style.cssText;
+  old.parentNode.replaceChild(inp, old);
+}
+
+function guardarMov(){
+  const fecha   = document.getElementById("m-fecha").value;
+  const entidad = document.getElementById("m-entidad").value;
+  const item    = document.getElementById("m-item").value;
+  if(!fecha||!item){alert("Completá fecha e ítem.");return}
+
+  let importe=0, formas={};
+  if(curTipo==="INGRESO"){
+    const ef  = parseNum(document.getElementById("m-ef").value);
+    const trf = parseNum(document.getElementById("m-trf").value);
+    const tar = parseNum(document.getElementById("m-tar").value);
+    const qr  = parseNum(document.getElementById("m-qr").value);
+    importe = ef+trf+tar+qr;
+    if(importe<=0){alert("Ingresá al menos un importe.");return}
+    formas = {ef,trf,tar,qr};
+    const maxForma = Object.entries({EFECTIVO:ef,TRANSFERENCIA:trf,TARJETA:tar,QR:qr})
+      .sort((a,b)=>b[1]-a[1])[0];
+    formas.principal = maxForma[0];
+  } else {
+    const gastoEl = document.getElementById("m-importe-gasto");
+    importe = parseNum(gastoEl ? gastoEl.value : "0");
+    if(importe<=0){alert("Ingresá el importe.");return}
+    formas = {principal: curFormaGasto, ef:curFormaGasto==="EFECTIVO"?importe:0, trf:curFormaGasto==="TRANSFERENCIA"?importe:0, tar:curFormaGasto==="TARJETA"?importe:0, qr:curFormaGasto==="QR"?importe:0};
+  }
+
+  const jugador  = document.getElementById("m-jugador-wrap").style.display!=="none"
+    ? document.getElementById("m-jugador").value : "";
+  const camiseta = document.getElementById("m-camiseta").value;
+  const movData  = {fecha, tipo:curTipo, entidad, item, importe, formas,
+    forma: formas.principal,  // compatibilidad con código existente
+    jugador, camiseta,
+    comp: document.getElementById("m-comp").value,
+    obs:  document.getElementById("m-obs").value};
+
+  if(editingMovId!==null){
+    const idx = movimientos.findIndex(m=>m.id===editingMovId);
+    if(idx>-1) movimientos[idx] = {...movimientos[idx],...movData};
+  } else {
+    movimientos.push({id:nid(),...movData});
+  }
+  save("tf_movimientos",movimientos);
+  closeMovModal();
+  renderMov();
+}
+
+// ── MODAL CUOTA ──────────────────────────────────────────────
+function autoFillCuotaMonto(){
+  const item = document.getElementById("c-it").value;
+  const todos = [...cfgData.ing,...cfgData.gas];
+  const found = todos.find(i=>i.nombre===item);
+  const val = found ? found.valor : 0;
+  const campo = document.getElementById("c-monto");
+  if(val>0 && !campo.value){
+    campo.value = val;
+    campo.style.background = "#FFFDE7";
+    setTimeout(()=>campo.style.background="", 2000);
+  }
+}
+
+function openCuotaModal(){
+  editingCuotaId = null;
+  document.querySelector("#ov-cuota h2").childNodes[0].textContent = "Agregar cuota ";
+  document.getElementById("ov-cuota").querySelector(".btn.primary").textContent = "Guardar cuota";
+  const sel=document.getElementById("c-eq");
+  sel.innerHTML="";
+  equipos.forEach(eq=>{const o=document.createElement("option");o.value=eq.nombre;o.textContent=eq.nombre;sel.appendChild(o)});
+  const selIt=document.getElementById("c-it");
+  selIt.innerHTML="";
+  getItemsIng().forEach(it=>{const o=document.createElement("option");o.value=it;o.textContent=it;selIt.appendChild(o)});
+  selIt.onchange = ()=>{ document.getElementById("c-monto").value=""; autoFillCuotaMonto(); };
+  document.getElementById("c-monto").value="";
+  autoFillCuotaMonto();  // autocompleta el primer ítem al abrir
+  document.getElementById("ov-cuota").classList.add("open");
+}
+
+function editarCuota(id){
+  const c = cuotas.find(c=>c.id===id);
+  if(!c) return;
+  editingCuotaId = id;
+  document.querySelector("#ov-cuota h2").childNodes[0].textContent = "Editar cuota ";
+  document.getElementById("ov-cuota").querySelector(".btn.primary").textContent = "Guardar cambios";
+  const sel=document.getElementById("c-eq");
+  sel.innerHTML="";
+  equipos.forEach(eq=>{const o=document.createElement("option");o.value=eq.nombre;o.textContent=eq.nombre;sel.appendChild(o)});
+  sel.value = c.equipo;
+  const selIt=document.getElementById("c-it");
+  selIt.innerHTML="";
+  getItemsIng().forEach(it=>{const o=document.createElement("option");o.value=it;o.textContent=it;selIt.appendChild(o)});
+  selIt.onchange = ()=>{ document.getElementById("c-monto").value=""; autoFillCuotaMonto(); };
+  selIt.value = c.item;
+  document.getElementById("c-monto").value = c.monto;
+  document.getElementById("ov-cuota").classList.add("open");
+}
+
+function closeCuotaModal(){document.getElementById("ov-cuota").classList.remove("open")}
+
+function guardarCuota(){
+  const equipo=document.getElementById("c-eq").value;
+  const item=document.getElementById("c-it").value;
+  const monto=parseFloat(document.getElementById("c-monto").value)||0;
+  if(!equipo||!item||monto<=0){alert("Completá todos los campos.");return}
+  if(editingCuotaId!==null){
+    const idx = cuotas.findIndex(c=>c.id===editingCuotaId);
+    if(idx>-1) cuotas[idx] = {...cuotas[idx],equipo,item,monto};
+  } else {
+    cuotas.push({id:nid(),equipo,item,monto});
+  }
+  save("tf_cuotas",cuotas);
+  closeCuotaModal();
+  renderCuotas();
+}
+
+// ── MODAL EQUIPO ─────────────────────────────────────────────
+let tempJugadores = [];
+let jugadoresFromEquipoModal = false;
+
+function editarJugadores(eqId){
+  const eq = equipos.find(e=>e.id===eqId);
+  if(!eq) return;
+  editingEquipoId = eqId;
+  jugadoresFromEquipoModal = false;
+  tempJugadores = JSON.parse(JSON.stringify(eq.jugadores||[]));
+  document.getElementById("jmod-equipo-nombre").textContent = eq.nombre;
+  renderJugadoresModal(tempJugadores);
+  document.getElementById("ov-jugadores").classList.add("open");
+}
+
+function abrirJugadoresDesdeEquipo(){
+  jugadoresFromEquipoModal = true;
+  const nombre = document.getElementById("eq-nombre").value||"nuevo equipo";
+  document.getElementById("jmod-equipo-nombre").textContent = nombre;
+  renderJugadoresModal(tempJugadores);
+  document.getElementById("ov-jugadores").classList.add("open");
+}
+
+function closeJugadoresModal(){
+  document.getElementById("ov-jugadores").classList.remove("open");
+}
+
+function guardarJugadores(){
+  tempJugadores = leerJugadoresModal();
+  if(jugadoresFromEquipoModal){
+    actualizarPreviewJugadores();
+    closeJugadoresModal();
+    return;
+  }
+  const idx = equipos.findIndex(e=>e.id===editingEquipoId);
+  if(idx>-1){
+    equipos[idx].jugadores = tempJugadores;
+    save("tf_equipos",equipos);
+    renderEquipos();
+  }
+  closeJugadoresModal();
+}
+
+function actualizarPreviewJugadores(){
+  const prev = document.getElementById("eq-jugadores-preview");
+  if(!prev) return;
+  if(tempJugadores.length===0){
+    prev.textContent = "Sin jugadores cargados aún.";
+    prev.style.color = "#aaa";
+  } else {
+    prev.innerHTML = tempJugadores.map(j=>
+      `<span style="display:inline-block;background:#e8f5e9;color:#1A6B3C;border-radius:6px;padding:2px 8px;margin:2px;font-size:11px;font-weight:600">#${j.camiseta||"?"} ${j.nombre}</span>`
+    ).join("");
+  }
+}
+
+let tempLogo = null;  // base64 del logo en edición
+
+function previewLogo(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    tempLogo = e.target.result;
+    mostrarPreviewLogo(tempLogo);
+  };
+  reader.readAsDataURL(file);
+}
+
+function mostrarPreviewLogo(src){
+  const prev = document.getElementById("eq-logo-preview");
+  if(!prev) return;
+  if(src){
+    prev.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:contain;border-radius:8px">`;
+  } else {
+    prev.innerHTML = `<span style="font-size:24px">🛡️</span>`;
+  }
+}
+
+function quitarLogo(){
+  tempLogo = null;
+  mostrarPreviewLogo(null);
+  document.getElementById("eq-logo-file").value = "";
+}
+
+function openEquipoModal(){
+  editingEquipoId = null;
+  tempJugadores = [];
+  tempLogo = null;
+  document.querySelector("#ov-equipo h2").childNodes[0].textContent = "Agregar equipo ";
+  document.getElementById("ov-equipo").querySelector(".btn.primary").textContent = "Guardar equipo";
+  ["eq-nombre","eq-delegado","eq-tel","eq-cat"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("eq-logo-file").value = "";
+  mostrarPreviewLogo(null);
+  actualizarPreviewJugadores();
+  document.getElementById("ov-equipo").classList.add("open");
+}
+
+function editarEquipo(id){
+  const eq = equipos.find(e=>e.id===id);
+  if(!eq) return;
+  editingEquipoId = id;
+  tempJugadores = JSON.parse(JSON.stringify(eq.jugadores||[]));
+  tempLogo = eq.logo||null;
+  document.querySelector("#ov-equipo h2").childNodes[0].textContent = "Editar equipo ";
+  document.getElementById("ov-equipo").querySelector(".btn.primary").textContent = "Guardar cambios";
+  document.getElementById("eq-nombre").value = eq.nombre;
+  document.getElementById("eq-delegado").value = eq.delegado||"";
+  document.getElementById("eq-tel").value = eq.tel||"";
+  document.getElementById("eq-cat").value = eq.cat||"";
+  document.getElementById("eq-logo-file").value = "";
+  mostrarPreviewLogo(tempLogo);
+  actualizarPreviewJugadores();
+  document.getElementById("ov-equipo").classList.add("open");
+}
+
+function closeEquipoModal(){document.getElementById("ov-equipo").classList.remove("open")}
+
+function guardarEquipo(){
+  const nombre=document.getElementById("eq-nombre").value.trim();
+  if(!nombre){alert("Ingresá el nombre del equipo.");return}
+  const jugadores = tempJugadores;
+  const logo = tempLogo;
+  if(editingEquipoId!==null){
+    const idx = equipos.findIndex(e=>e.id===editingEquipoId);
+    if(idx>-1){
+      const nombreViejo = equipos[idx].nombre;
+      equipos[idx] = {...equipos[idx],nombre,jugadores,logo,
+        delegado:document.getElementById("eq-delegado").value,
+        tel:document.getElementById("eq-tel").value,
+        cat:document.getElementById("eq-cat").value};
+      if(nombreViejo!==nombre){
+        cuotas = cuotas.map(c=>c.equipo===nombreViejo?{...c,equipo:nombre}:c);
+        movimientos = movimientos.map(m=>m.entidad===nombreViejo?{...m,entidad:nombre}:m);
+        save("tf_cuotas",cuotas);
+        save("tf_movimientos",movimientos);
+      }
+    }
+  } else {
+    if(equipos.find(e=>e.nombre===nombre)){alert("Ya existe un equipo con ese nombre.");return}
+    equipos.push({id:nid(),nombre,jugadores,logo,
+      delegado:document.getElementById("eq-delegado").value,
+      tel:document.getElementById("eq-tel").value,
+      cat:document.getElementById("eq-cat").value});
+  }
+  save("tf_equipos",equipos);
+  closeEquipoModal();
+  renderEquipos();
+  poblarSelects();
+}
+
+// ── JUGADORES helpers ─────────────────────────────────────────
+function renderJugadoresModal(jugadores){
+  const tbody = document.getElementById("eq-jugadores-tbody");
+  tbody.innerHTML = "";
+  const empty = document.getElementById("eq-jugadores-empty");
+  empty.style.display = jugadores.length ? "none" : "block";
+  jugadores.forEach((j,i)=>{
+    const tr = document.createElement("tr");
+    tr.style.background = i%2===0 ? "#f9fff9" : "#fff";
+    tr.innerHTML = `
+      <td style="padding:5px 4px">
+        <input type="text" value="${j.camiseta||""}" placeholder="#" id="jcam-${i}"
+          style="width:48px;padding:6px;border:1.5px solid #c8e6c9;border-radius:7px;text-align:center;font-weight:700;font-size:13px;color:#1A6B3C;background:#f1f8e9">
+      </td>
+      <td style="padding:5px 4px">
+        <input type="text" value="${j.nombre||""}" placeholder="Nombre del jugador" id="jnom-${i}"
+          style="padding:6px 10px;border:1.5px solid #ddd;border-radius:7px;width:100%;font-size:13px"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();agregarFilaJugador()}">
+      </td>
+      <td style="padding:5px 4px;text-align:center">
+        <button onclick="eliminarFilaJugador(${i})" title="Eliminar jugador"
+          style="background:#fff5f5;border:1px solid #ffcdd2;border-radius:6px;padding:4px 8px;cursor:pointer;color:#D52B1E;font-size:14px;font-weight:700">×</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  // focus last empty name input
+  if(jugadores.length){
+    const last = document.getElementById(`jnom-${jugadores.length-1}`);
+    if(last && !last.value) last.focus();
+  }
+}
+
+function agregarFilaJugador(){
+  const jugadores = leerJugadoresModal();
+  jugadores.push({camiseta:"",nombre:""});
+  renderJugadoresModal(jugadores);
+  // focus last name input
+  const inputs = document.querySelectorAll("[id^='jnom-']");
+  if(inputs.length) inputs[inputs.length-1].focus();
+}
+
+function eliminarFilaJugador(idx){
+  const jugadores = leerJugadoresModal();
+  jugadores.splice(idx,1);
+  renderJugadoresModal(jugadores);
+}
+
+function leerJugadoresModal(){
+  const rows = document.querySelectorAll("#eq-jugadores-tbody tr");
+  const jugadores = [];
+  rows.forEach((tr,i)=>{
+    const cam = document.getElementById(`jcam-${i}`);
+    const nom = document.getElementById(`jnom-${i}`);
+    if(cam&&nom&&nom.value.trim()){
+      jugadores.push({camiseta:cam.value.trim(), nombre:nom.value.trim()});
+    }
+  });
+  return jugadores;
+}
+
+
+// ── CONFIGURACIÓN ────────────────────────────────────────────
+// Estructura: items_ing y items_gas son arrays de {nombre, valor}
+const CFG_ING_DEFAULT = [
+  {nombre:"INSCRIPCIÓN",          valor:0},
+  {nombre:"DERECHO DE CAMPO",     valor:0},
+  {nombre:"TARJETA ROJA",         valor:50000},
+  {nombre:"TARJETA AMARILLA",     valor:25000},
+  {nombre:"OTROS INGRESOS",       valor:0}
+];
+const CFG_GAS_DEFAULT = [
+  {nombre:"ALQUILER CANCHA",      valor:0},
+  {nombre:"HONORARIO ÁRBITRO",    valor:0},
+  {nombre:"PREMIACIÓN",           valor:0},
+  {nombre:"LOGÍSTICA",            valor:0},
+  {nombre:"OTROS GASTOS",         valor:0}
+];
+
+// Migrate legacy flat config if needed
+function migrateConfig(){
+  const legacyIng = load("tf_items_ing", null);
+  const legacyGas = load("tf_items_gas", null);
+  if(legacyIng && legacyGas) return {ing:legacyIng, gas:legacyGas};
+  // check even older flat config
+  const flat = load("tf_config", null);
+  if(flat && !flat.ing){
+    const ing = CFG_ING_DEFAULT.map(d=>({nombre:d.nombre, valor: flat[d.nombre]||d.valor}));
+    const gas = CFG_GAS_DEFAULT.map(d=>({nombre:d.nombre, valor: flat[d.nombre]||d.valor}));
+    return {ing, gas};
+  }
+  return {ing:[...CFG_ING_DEFAULT.map(d=>({...d}))], gas:[...CFG_GAS_DEFAULT.map(d=>({...d}))]};
+}
+
+let cfgData = migrateConfig();
+// keep ITEMS_ING / ITEMS_GAS as computed arrays (used elsewhere)
+function getItemsIng(){ return cfgData.ing.map(i=>i.nombre); }
+function getItemsGas(){ return cfgData.gas.map(i=>i.nombre); }
+// keep legacy refs updated
+let ITEMS_ING = getItemsIng();
+let ITEMS_GAS = getItemsGas();
+
+function saveConfigData(){
+  save("tf_items_ing", cfgData.ing);
+  save("tf_items_gas", cfgData.gas);
+  ITEMS_ING = getItemsIng();
+  ITEMS_GAS = getItemsGas();
+}
+
+// ── Build editable row for config list ──────────────────────
+function makeItemRow(idx, tipo, item){
+  const isIng = tipo==="ing";
+  const accentColor = isIng ? "#1A6B3C" : "#E65100";
+  const borderLeft  = isIng ? "4px solid #1A6B3C" : "4px solid #E65100";
+  const canDelete   = cfgData[tipo].length > 1;
+  return `<div id="cfg-row-${tipo}-${idx}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f9f9f9;border-radius:9px;border-left:${borderLeft};margin-bottom:8px">
+    <div style="flex:2;min-width:0">
+      <div style="font-size:10px;color:#aaa;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Nombre</div>
+      <input type="text" value="${item.nombre}"
+        id="cfg-nombre-${tipo}-${idx}"
+        placeholder="Nombre del ítem"
+        style="font-weight:600;font-size:13px;border:1px solid #ddd;padding:7px 10px;border-radius:7px;width:100%">
+    </div>
+    <div style="width:140px;flex-shrink:0">
+      <div style="font-size:10px;color:#aaa;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Valor (Gs.)</div>
+      <input type="number" min="0" step="1000" value="${item.valor}"
+        id="cfg-valor-${tipo}-${idx}"
+        placeholder="0"
+        style="font-weight:700;font-size:13px;border:1px solid #ddd;padding:7px 10px;border-radius:7px;width:100%;text-align:right;color:${accentColor}">
+    </div>
+    ${canDelete ? `<button onclick="eliminarItemCfg('${tipo}',${idx})"
+      style="flex-shrink:0;width:32px;height:32px;border-radius:7px;border:1px solid #ffcdd2;background:#fff5f5;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:14px"
+      title="Eliminar">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D52B1E" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    </button>` : `<div style="width:32px;margin-top:14px"></div>`}
+  </div>`;
+}
+
+function renderConfig(){
+  const elIng = document.getElementById("cfg-list-ing");
+  const elGas = document.getElementById("cfg-list-gas");
+  if(!elIng||!elGas) return;
+  elIng.innerHTML =
+    cfgData.ing.map((it,i)=>makeItemRow(i,"ing",it)).join("") ||
+    "<p style='color:#aaa;font-size:13px;padding:8px'>Sin ítems de ingreso.</p>";
+  elGas.innerHTML =
+    cfgData.gas.map((it,i)=>makeItemRow(i,"gas",it)).join("") ||
+    "<p style='color:#aaa;font-size:13px;padding:8px'>Sin ítems de gasto.</p>";
+}
+
+function leerCamposCfg(){
+  ["ing","gas"].forEach(tipo=>{
+    cfgData[tipo].forEach((item,i)=>{
+      const elN = document.getElementById(`cfg-nombre-${tipo}-${i}`);
+      const elV = document.getElementById(`cfg-valor-${tipo}-${i}`);
+      if(elN) item.nombre = elN.value.trim().toUpperCase() || item.nombre;
+      if(elV) item.valor  = parseFloat(elV.value)||0;
+    });
+  });
+}
+
+function guardarConfig(){
+  leerCamposCfg();
+  // Validate no empty names
+  const todos = [...cfgData.ing,...cfgData.gas];
+  if(todos.some(i=>!i.nombre)){alert("Todos los ítems deben tener un nombre.");return;}
+  saveConfigData();
+  renderConfig();
+  // flash confirmation instead of alert
+  const btn = event.currentTarget;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ¡Guardado!';
+  btn.style.background="#2E8B57";
+  setTimeout(()=>{btn.innerHTML=orig;btn.style.background="";},1800);
+}
+
+function agregarItemIng(){
+  leerCamposCfg();
+  cfgData.ing.push({nombre:"NUEVO ÍTEM",valor:0});
+  renderConfig();
+  // focus the new name input
+  const idx = cfgData.ing.length-1;
+  const el = document.getElementById(`cfg-nombre-ing-${idx}`);
+  if(el){el.focus();el.select();}
+}
+
+function agregarItemGas(){
+  leerCamposCfg();
+  cfgData.gas.push({nombre:"NUEVO GASTO",valor:0});
+  renderConfig();
+  const idx = cfgData.gas.length-1;
+  const el = document.getElementById(`cfg-nombre-gas-${idx}`);
+  if(el){el.focus();el.select();}
+}
+
+function eliminarItemCfg(tipo, idx){
+  leerCamposCfg();
+  const nombre = cfgData[tipo][idx].nombre;
+  if(!confirm(`¿Eliminar el ítem "${nombre}"? Los movimientos existentes con este ítem no se borrarán.`)) return;
+  cfgData[tipo].splice(idx,1);
+  renderConfig();
+}
+
+function onItemChange(){
+  autoFillImporte();
+  actualizarEntidadField();
+  actualizarJugadorWrap();
+}
+
+function formatearGasto(inp){
+  const raw = String(inp.value).replace(/[^\d]/g,"");
+  const num = parseInt(raw)||0;
+  inp.value = num ? num.toLocaleString("es-PY") : "";
+}
+
+function autoFillImporte(){
+  const item = document.getElementById("m-item").value;
+  const todos = [...cfgData.ing,...cfgData.gas];
+  const found = todos.find(i=>i.nombre===item);
+  const val   = found ? found.valor : 0;
+  const hint  = document.getElementById("m-importe-hint");
+  if(val>0){
+    // para ingresos: poner todo en efectivo por defecto
+    if(curTipo==="INGRESO"){
+      document.getElementById("m-ef").value  = val.toLocaleString("es-PY");
+      document.getElementById("m-trf").value = "0";
+      document.getElementById("m-tar").value = "0";
+      document.getElementById("m-qr").value  = "0";
+      document.getElementById("m-importe").value = val.toLocaleString("es-PY");
+    } else {
+      const g = document.getElementById("m-importe-gasto");
+      if(g) g.value = val.toLocaleString("es-PY");
+    }
+    if(hint) hint.textContent = "★ valor configurado";
+    setTimeout(()=>{ if(hint) hint.textContent=""; }, 2000);
+  }
+}
+
+function esTarjeta(itemNombre){
+  // detecta cualquier ítem que contenga "TARJETA" en su nombre
+  return itemNombre && itemNombre.toUpperCase().includes("TARJETA");
+}
+
+function actualizarJugadorWrap(){
+  const item = document.getElementById("m-item").value;
+  const wrap = document.getElementById("m-jugador-wrap");
+  wrap.style.display = esTarjeta(item) ? "block" : "none";
+  if(esTarjeta(item)){
+    const equipo = document.getElementById("m-entidad").value;
+    const eq = equipos.find(e=>e.nombre===equipo);
+    const jugadores = eq&&eq.jugadores ? eq.jugadores : [];
+    const sel = document.getElementById("m-jugador");
+    const curVal = sel.value;
+    sel.innerHTML = '<option value="">-- Seleccionar jugador --</option>';
+    jugadores.forEach(j=>{
+      const o = document.createElement("option");
+      o.value = j.nombre;
+      o.textContent = `#${j.camiseta||"?"} — ${j.nombre}`;
+      o.dataset.camiseta = j.camiseta||"";
+      sel.appendChild(o);
+    });
+    if(curVal) sel.value = curVal;
+    sel.onchange = ()=>{
+      const opt = sel.options[sel.selectedIndex];
+      document.getElementById("m-camiseta").value = opt&&opt.dataset.camiseta ? opt.dataset.camiseta : "";
+    };
+  }
+}
+
+// ── EXPORTAR JPG / PDF ───────────────────────────────────────
+async function exportarJPG(elId, nombre){
+  const el = document.getElementById(elId);
+  if(!el){alert("No hay contenido para exportar.");return}
+  const btn = event.currentTarget;
+  const orig = btn.innerHTML;
+  btn.innerHTML = "Generando..."; btn.disabled = true;
+  try{
+    const canvas = await html2canvas(el,{
+      scale:2, useCORS:true, backgroundColor:"#f4f6f8",
+      logging:false, windowWidth:900
+    });
+    const link = document.createElement("a");
+    link.download = nombre+"_"+new Date().toISOString().split("T")[0]+".jpg";
+    link.href = canvas.toDataURL("image/jpeg",0.92);
+    link.click();
+  }catch(e){alert("Error al generar imagen: "+e.message)}
+  btn.innerHTML = orig; btn.disabled = false;
+}
+
+async function exportarPDF(elId, nombre){
+  const el = document.getElementById(elId);
+  if(!el){alert("No hay contenido para exportar.");return}
+  const btn = event.currentTarget;
+  const orig = btn.innerHTML;
+  btn.innerHTML = "Generando..."; btn.disabled = true;
+  try{
+    const canvas = await html2canvas(el,{
+      scale:2, useCORS:true, backgroundColor:"#f4f6f8",
+      logging:false, windowWidth:900
+    });
+    const imgData = canvas.toDataURL("image/jpeg",0.92);
+    const {jsPDF} = window.jspdf;
+    // A4 landscape si es ancho, portrait si es alto
+    const ratio = canvas.width / canvas.height;
+    const orient = ratio > 1.2 ? "landscape" : "portrait";
+    const pdf = new jsPDF({orientation:orient, unit:"mm", format:"a4"});
+    const pw = pdf.internal.pageSize.getWidth();
+    const ph = pdf.internal.pageSize.getHeight();
+    const margin = 10;
+    const maxW = pw - margin*2;
+    const maxH = ph - margin*2;
+    let imgW = maxW;
+    let imgH = imgW / ratio;
+    if(imgH > maxH){ imgH = maxH; imgW = imgH * ratio; }
+    const x = (pw - imgW) / 2;
+    // if taller than page, split into pages
+    if(canvas.height * (imgW / canvas.width) > maxH){
+      const pageHeightPx = canvas.width * (maxH / imgW);
+      let yOffset = 0;
+      let pageNum = 0;
+      while(yOffset < canvas.height){
+        if(pageNum > 0) pdf.addPage();
+        const sliceH = Math.min(pageHeightPx, canvas.height - yOffset);
+        const sliceCanvas = document.createElement("canvas");
+        sliceCanvas.width = canvas.width;
+        sliceCanvas.height = sliceH;
+        sliceCanvas.getContext("2d").drawImage(canvas, 0, yOffset, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+        const sliceData = sliceCanvas.toDataURL("image/jpeg",0.92);
+        const sliceImgH = sliceH * (imgW / canvas.width);
+        pdf.addImage(sliceData,"JPEG", x, margin, imgW, sliceImgH);
+        yOffset += sliceH;
+        pageNum++;
+      }
+    } else {
+      pdf.addImage(imgData,"JPEG", x, margin, imgW, imgH);
+    }
+    pdf.save(nombre+"_"+new Date().toISOString().split("T")[0]+".pdf");
+  }catch(e){alert("Error al generar PDF: "+e.message)}
+  btn.innerHTML = orig; btn.disabled = false;
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", function(){
+  const fechaEl = document.getElementById("header-fecha");
+  if(fechaEl) fechaEl.textContent = new Date().toLocaleDateString("es-PY",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  // En desktop (no táctil) ocultamos botones hasta hover
+  if(!('ontouchstart' in window)){
+    document.querySelectorAll("table").forEach(t=>t.classList.add("desktop-hover"));
+  }
+  poblarSelects();
+  renderMov();
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>
